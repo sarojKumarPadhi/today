@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60">
+  <g id="Group_2918" data-name="Group 2918" transform="translate(-40 -420)">
+    <g id="Rectangle_6" data-name="Rectangle 6" transform="translate(40 420)" fill="#545454" stroke="#707070" stroke-width="1" opacity="0.1">
+      <rect width="60" height="60" rx="12" stroke="none"/>
+      <rect x="0.5" y="0.5" width="59" height="59" rx="11.5" fill="none"/>
+    </g>
+    <g id="padlock_1_" data-name="padlock (1)" transform="translate(56.537 440)">
+      <g id="Group_24" data-name="Group 24" transform="translate(0 0)">
+        <path id="Icon_awesome-wifi" data-name="Icon awesome-wifi" d="M28.1,7.689a20.581,20.581,0,0,0-27.879,0A.7.7,0,0,0,.21,8.706l1.516,1.5a.719.719,0,0,0,.992.017,16.983,16.983,0,0,1,22.9,0,.719.719,0,0,0,.992-.017l1.516-1.5A.7.7,0,0,0,28.1,7.689ZM14.165,16.415A2.833,2.833,0,1,0,17,19.247,2.833,2.833,0,0,0,14.165,16.415Zm8.971-3.7a13.589,13.589,0,0,0-17.942,0,.7.7,0,0,0-.025,1.025l1.524,1.5a.723.723,0,0,0,.976.035,9.969,9.969,0,0,1,12.991,0,.722.722,0,0,0,.976-.035l1.524-1.5A.7.7,0,0,0,23.136,12.715Z" transform="translate(0 -2.25)" fill="#3e64ff"/>
+      </g>
+    </g>
+  </g>
+</svg>

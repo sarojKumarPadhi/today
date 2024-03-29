@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60">
+  <g id="Group_2917" data-name="Group 2917" transform="translate(-40 -420)">
+    <g id="Rectangle_6" data-name="Rectangle 6" transform="translate(40 420)" fill="#545454" stroke="#707070" stroke-width="1" opacity="0.1">
+      <rect width="60" height="60" rx="12" stroke="none"/>
+      <rect x="0.5" y="0.5" width="59" height="59" rx="11.5" fill="none"/>
+    </g>
+    <g id="padlock_1_" data-name="padlock (1)" transform="translate(55.516 437)">
+      <g id="Group_24" data-name="Group 24" transform="translate(0 0)">
+        <path id="Icon_awesome-signal" data-name="Icon awesome-signal" d="M11.573,14.829H9.1a.824.824,0,0,0-.824.824v9.886a.824.824,0,0,0,.824.824h2.471a.824.824,0,0,0,.824-.824V15.652A.824.824,0,0,0,11.573,14.829Zm-6.59,4.943H2.511a.824.824,0,0,0-.824.824v4.943a.824.824,0,0,0,.824.824H4.983a.824.824,0,0,0,.824-.824V20.6A.824.824,0,0,0,4.983,19.771ZM18.164,9.886H15.692a.824.824,0,0,0-.824.824V25.538a.824.824,0,0,0,.824.824h2.471a.824.824,0,0,0,.824-.824V10.71A.824.824,0,0,0,18.164,9.886Zm6.59-4.943H22.283a.824.824,0,0,0-.824.824V25.538a.824.824,0,0,0,.824.824h2.471a.824.824,0,0,0,.824-.824V5.767A.824.824,0,0,0,24.754,4.943ZM31.345,0H28.873a.824.824,0,0,0-.824.824V25.538a.824.824,0,0,0,.824.824h2.471a.824.824,0,0,0,.824-.824V.824A.824.824,0,0,0,31.345,0Z" transform="translate(-1.688 0)" fill="#3e64ff"/>
+      </g>
+    </g>
+  </g>
+</svg>

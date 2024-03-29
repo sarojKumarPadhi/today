@@ -1,0 +1,75 @@
+class InspectionsModel{
+  late String corporateInspectionsType;
+  late String unplannedType;
+  late String recordType;
+  late String hotelEstablishment;
+  late String inspector;
+  late String checklist;
+  late String frequency;
+  late String geoLocation;
+  late String faciltyManagerOrFocalPoint;
+  late String inspectionComments;
+  late String responsiblePerson;
+  late String auditActionPlanDate;
+  late String submittedBy;
+  late String submittedOn;
+  late String establishmentOSHRepresentative;
+  late String prepareActionComments;
+  late String location;
+  late String objectId;
+  late String objectTypeId;
+  late String inspectionActionPlanDate;
+  late String comments;
+  late String reviewDate;
+  late String reviewedby;
+  late String totalInspectionScore;
+  late String actionPlanDate;
+  late String actionPlanPreparedBy;
+  late String actionApprovalTargetDate;
+  late String targetDate;
+  late String actionPlanComments;
+  late String approvedActionPlanDate;
+  late String actionPlanApprovedBy;
+  late String followUpComments;
+  late String followUpDate;
+  late String followUpBy;
+  late String inspectionResultsComments;
+  late String customField1;
+  late String customField2;
+  late String customField3;
+  late String customField4;
+  late String customField5;
+  late String customField6;
+  late String dataValidatedStages;
+  late String customField7;
+  late String inspectionManagementDataValidateStage;
+  late String inspectionManagementDataValidatedStages;
+  late String inspectionManagementCorrelationId;
+  late String inspectionManagementSendToNextStageText;
+  late String inspectionManagementSendToPrevStageText;
+  late String inspectionManagementSendToCancelStageText;
+  late String inspectionManagementSendToNextStageUrl;
+  late String inspectionManagementSendToPrevStageUrl;
+  late String inspectionManagementSendToCancelStageUrl;
+  late String isDeleted;
+  late String deleterId;
+  late String deletionTime;
+  late String lastModificationTime;
+  late String lastModifierId;
+  late String creationTime;
+  late String creatorId;
+  String stage;
+  String id;
+  String taskScheduleId;
+  String recordNo;
+  String inspectionManagementOrganizationDisplayName;
+  String inspectionManagementInspectionsTypeDisplayName;
+  String inspectionManagementInspectorDisplayName;
+  String scheduledDate;
+  String date;
+
+  InspectionsModel(this.stage, this.id, this.taskScheduleId, this.recordNo, this.inspectionManagementOrganizationDisplayName, this.inspectionManagementInspectionsTypeDisplayName,
+  this.inspectionManagementInspectorDisplayName, this.scheduledDate,  this.date,);
+
+
+}
