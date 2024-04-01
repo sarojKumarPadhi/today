@@ -20,6 +20,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get_core/get_core.dart';
 import 'package:get/get_instance/get_instance.dart';
+import 'package:get/get_navigation/get_navigation.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:hive/hive.dart';
 
@@ -1194,7 +1195,8 @@ class ObservationCreateState extends State<ObservationCreate> {
                   box.put('OrgUnitId', allCountryNames);
                   logger.i(box.get('OrgUnitId'));
 
-                  // createObservation(values, dropdown);
+                  createObservation(values, dropdown);
+                  Get.back();
                 },
                 child: Center(
                   child: Text("Submit",

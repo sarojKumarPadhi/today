@@ -3,21 +3,20 @@ import 'package:ehs_new/controller/observationController.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/get_core.dart';
-import 'package:get/get_instance/get_instance.dart';
-import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:logger/logger.dart';
 import 'package:nb_utils/nb_utils.dart';
 
-class OffineObs extends StatefulWidget {
-  const OffineObs({Key? key}) : super(key: key);
+class OfflineEdit extends StatefulWidget {
+  final int index;
+
+  const OfflineEdit({super.key, required this.index});
 
   @override
-  _OffineObsState createState() => _OffineObsState();
+  _OfflineEditState createState() => _OfflineEditState();
 }
 
-class _OffineObsState extends State<OffineObs> {
+class _OfflineEditState extends State<OfflineEdit> {
   var box = Hive.box('myBox');
   String? _selectedCountry;
   String? _seletedRisk;
@@ -432,9 +431,8 @@ class _OffineObsState extends State<OffineObs> {
                       "ReportedBy":
                           observationController.reportedByController.text,
                     };
-                    box.put("$length", offileMap);
-                    logger.d(box.get("$length"));
-                    box.put("length", ++length);
+                    box.put("${widget.index}", offileMap);
+                    logger.d(box.get("${widget.index}"));
                     Get.back();
                   },
                   child: Text('Submit'),

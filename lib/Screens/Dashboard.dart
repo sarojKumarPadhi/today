@@ -289,16 +289,25 @@ class DashboardState extends State<Dashboard> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 GestureDetector(
-                                  onTap: () {
+                                  onTap: () async {
                                     if (choice.title == menu_observation) {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              ObservationCreate(),
-                                        ),
-                                      );
-                                      // Get.to(() => OffineObs());
+                                      var connectivityResult =
+                                          await Connectivity()
+                                              .checkConnectivity();
+                                      if (connectivityResult ==
+                                              ConnectivityResult.mobile ||
+                                          connectivityResult ==
+                                              ConnectivityResult.wifi) {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                ObservationCreate(),
+                                          ),
+                                        );
+                                      } else {
+                                        Get.to(() => OffineObs());
+                                      }
                                     } else if (choice.title == menu_incidents) {
                                       Navigator.push(
                                         context,
@@ -342,16 +351,25 @@ class DashboardState extends State<Dashboard> {
                                   ),
                                 ),
                                 GestureDetector(
-                                  onTap: () {
+                                  onTap: () async {
                                     if (choice.title == menu_observation) {
-                                      // Navigator.push(
-                                      //   context,
-                                      //   MaterialPageRoute(
-                                      //     builder: (context) =>
-                                      //         ObservationList(),
-                                      //   ),
-                                      // );
-                                      Get.to(() => OffileObsPage());
+                                      var connectivityResult =
+                                          await Connectivity()
+                                              .checkConnectivity();
+                                      if (connectivityResult ==
+                                              ConnectivityResult.mobile ||
+                                          connectivityResult ==
+                                              ConnectivityResult.wifi) {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                ObservationList(),
+                                          ),
+                                        );
+                                      } else {
+                                        Get.to(() => OffileObsPage());
+                                      }
                                     } else if (choice.title == menu_incidents) {
                                       Navigator.push(
                                         context,
