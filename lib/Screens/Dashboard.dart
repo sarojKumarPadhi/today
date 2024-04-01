@@ -6,6 +6,8 @@ import 'package:ehs_new/utils/Session.dart';
 import 'package:ehs_new/utils/String.dart';
 import 'package:ehs_new/widget/AppWidget.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get_core/get_core.dart';
+import 'package:get/get_navigation/get_navigation.dart';
 import 'package:http/http.dart';
 import 'package:nb_utils/nb_utils.dart';
 import 'Audits/AuditCreate.dart';
@@ -16,6 +18,8 @@ import 'Inspections/IncpectionCreate.dart';
 import 'Inspections/InspectionList.dart';
 import 'Observation/ObservationCreate.dart';
 import 'Observation/ObservationList.dart';
+import 'Observation/offlineObs.dart';
+import 'Observation/offlineObsList.dart';
 import 'Settings.dart';
 
 class Dashboard extends StatefulWidget {
@@ -294,6 +298,7 @@ class DashboardState extends State<Dashboard> {
                                               ObservationCreate(),
                                         ),
                                       );
+                                      // Get.to(() => OffineObs());
                                     } else if (choice.title == menu_incidents) {
                                       Navigator.push(
                                         context,
@@ -339,13 +344,14 @@ class DashboardState extends State<Dashboard> {
                                 GestureDetector(
                                   onTap: () {
                                     if (choice.title == menu_observation) {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              ObservationList(),
-                                        ),
-                                      );
+                                      // Navigator.push(
+                                      //   context,
+                                      //   MaterialPageRoute(
+                                      //     builder: (context) =>
+                                      //         ObservationList(),
+                                      //   ),
+                                      // );
+                                      Get.to(() => OffileObsPage());
                                     } else if (choice.title == menu_incidents) {
                                       Navigator.push(
                                         context,

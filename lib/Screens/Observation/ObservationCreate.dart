@@ -46,8 +46,10 @@ class ObservationCreate extends StatefulWidget {
 class ObservationCreateState extends State<ObservationCreate> {
   ObservationController observationController =
       Get.put(ObservationController());
+  List<String> allCountryNames = [];
   Map<String, TextEditingController> controllersMap = {};
   Map<String, dynamic> dropDownMap = {};
+  var box = Hive.box('myBox');
   PageController pageController = PageController(initialPage: 0);
   List<AttachmentsModel> attachments = [];
   List<Map<String, dynamic>> dropdownItems = [];
@@ -1188,41 +1190,9 @@ class ObservationCreateState extends State<ObservationCreate> {
                   print(dropdown +
                       "wereImmediate : ${observationController.immidiateActionController.text}" +
                       "unsafeType : ${observationController.textToShort.value}");
-                  var box = Hive.box('myBox');
-                  // box.clear();
-                  final random = Random();
-                  int randomNumber = random.nextInt(100);
-                  //------------create-----------------
-//  "exactLocation"  : "ghbf" , "observationDate"  : "29-03-2024" , "time"  : "" , "description"  : "rtr" , "comments"  : "tyu" , "reportedDateAndTime"  : "29-03-2024" wereImmediate : YesunsafeType : Procedures Orderliness/HouseKeepingobsNo : ObSV_03-202437
-                  // box.put(
-                  //     'data',
-                  //     values +
-                  //         ", wereImmediate : ${observationController.immidiateActionController.text}" +
-                  //         ", unsafeType : ${observationController.textToShort.value}" +
-                  //         ", obsNo : ObSV_03-2024$randomNumber");
 
-                  //------------create-----------------
-
-                  // -----------read-------------
-
-                  String StroredData = box.get('data');
-                  final keyValuePairs = StroredData.split(', ');
-
-                  final Map<String, String> dataMap = {};
-                  for (final pair in keyValuePairs) {
-                    final parts = pair.split(': ');
-                    if (parts.length == 2) {
-                      final key = parts[0].trim().replaceAll('"', '');
-                      final value = parts[1].trim().replaceAll('"', '');
-                      dataMap[key] = value;
-                    }
-                  }
-
-                  logger.i(dataMap);
-
-                  // -----------read-------------
-
-                  // box.clear();
+                  box.put('OrgUnitId', allCountryNames);
+                  logger.i(box.get('OrgUnitId'));
 
                   // createObservation(values, dropdown);
                 },
@@ -1386,6 +1356,8 @@ class ObservationCreateState extends State<ObservationCreate> {
     return result;
   }
 
+  // Define a list to store all country names
+
   void _onDropdownChanged(dynamic selectedValue, String code) {
     if (selectedValue is Map<String, dynamic>) {
       Map<String, dynamic> selectedItem = selectedValue;
@@ -1404,6 +1376,7 @@ class ObservationCreateState extends State<ObservationCreate> {
 
     for (final item in items) {
       final String displayName = item['displayName'];
+      allCountryNames.add(displayName); // Add country name to the list
       final String displayText =
           level == 0 ? displayName : (' ' * (level * 4)) + displayName;
       menuItems.add(
@@ -1440,6 +1413,7 @@ class ObservationCreateState extends State<ObservationCreate> {
                   isExpanded: true,
                   hint: Text('Select an item'),
                   items: buildDropdownMenuItems(dropdownItems),
+                  //suraj observation list
                   onChanged: (value) {
                     setState(() {
                       _onDropdownChanged(value, code);
@@ -1509,6 +1483,9 @@ class ObservationCreateState extends State<ObservationCreate> {
                   );
                 }).toList(),
                 onChanged: (newvalue) {
+                  box.put('riskList', radiolist.map((e) => e.value).toList());
+                  logger.i(box.get('riskList'));
+
                   var radiolist1 = subCommon
                       .where((element) => element.id == newvalue)
                       .toList();
@@ -1531,7 +1508,6 @@ class ObservationCreateState extends State<ObservationCreate> {
                   dropDownMap[result] = newvalue;
                   setState(() {
                     positionSelection = newvalue;
-                    print(positionSelection);
                   });
                 },
                 value: positionSelection,
