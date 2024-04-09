@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:math';
 
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:ehs_new/Model/AttachmentsModel.dart';
@@ -15,9 +14,7 @@ import 'package:ehs_new/utils/String.dart';
 import 'package:ehs_new/utils/color.dart';
 import 'package:ehs_new/widget/AppWidget.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:get/get_core/get_core.dart';
 import 'package:get/get_instance/get_instance.dart';
 import 'package:get/get_navigation/get_navigation.dart';
@@ -28,16 +25,14 @@ import 'package:http/http.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
-import 'package:multi_select_flutter/bottom_sheet/multi_select_bottom_sheet_field.dart';
-import 'package:multi_select_flutter/chip_display/multi_select_chip_display.dart';
-import 'package:multi_select_flutter/util/multi_select_item.dart';
-import 'package:multi_select_flutter/util/multi_select_list_type.dart';
 import 'package:nb_utils/nb_utils.dart';
 
 import 'package:google_maps_webservice/places.dart';
 
+import 'ObservationList.dart';
+
 class ObservationCreate extends StatefulWidget {
-  static String tag = '/ObservationC';
+  static String tag = '/ObservationEdit';
   String? _selectedValue;
 
   @override
@@ -45,6 +40,7 @@ class ObservationCreate extends StatefulWidget {
 }
 
 class ObservationCreateState extends State<ObservationCreate> {
+  bool isYesClicked = false;
   ObservationController observationController =
       Get.put(ObservationController());
   List<String> allCountryNames = [];
@@ -60,6 +56,7 @@ class ObservationCreateState extends State<ObservationCreate> {
   late File galleryFile;
   final picker = ImagePicker();
   List<EmployeeModel> employee = [];
+  List<String> offlineEmployeeList = [];
   List<SubCommonModel> subCommon = [];
   List<TanentsModel> organizations = [];
   List<dynamic> _unSafeActSelected = [];
@@ -80,6 +77,7 @@ class ObservationCreateState extends State<ObservationCreate> {
       datas,
       organizationSelection,
       dateOfAudits,
+      timeOfAudits,
       leadAuthoritySelected,
       facilityManageSelected,
       auditTypeSelected,
@@ -96,6 +94,10 @@ class ObservationCreateState extends State<ObservationCreate> {
   List<Widget> _Widget = [];
   List<Widget> _WidgetObservationDetails = [];
   List<Widget> _WidgetObservationSubDetails = [];
+  List<String> selectedUnsafeActs = [];
+  List<String> selectedUnsafeConditions = [];
+  List<List<String>> selectedUnsafeActOptions = [];
+  List<List<String>> selectedUnsafeConditionOptions = [];
   int number = 1;
   var latlang;
   List<Widget> buildDotIndicator() {
@@ -107,8 +109,59 @@ class ObservationCreateState extends State<ObservationCreate> {
     }
     return list;
   }
-  // CameraPosition _cameraPosition=CameraPosition(target:
-  // LatLng(45.521563, -122.677433),zoom: 17);
+
+  final optionToListMap = {
+    'Tools and Equipment': [
+      'Used Incorrectly',
+      'Wrong For The Job',
+      'In Unsafe Condition',
+    ],
+    'Reaction of People': [
+      'Stopping Job',
+      'Adjusting Personal Protective Equipment',
+      'Changing Position',
+      'Rearranging Job',
+      'Performing Lockouts',
+      'Attaching Ground',
+    ],
+    'Procedures Orderliness/HouseKeeping': [
+      'Procedures Inadequate',
+      'Procedures Not Known/Understood',
+      'Procedures Not Followed Orderliness Standard Inadequate',
+      'Orderliness Standard Not Followed',
+      'Orderliness Standard Not Known/Understood',
+    ],
+    'PPE': [
+      'Trunk',
+      'Ears',
+      'Eyes and Face',
+      'Arms and Hands',
+      'Respiratory System',
+      'Head',
+      'Legs and Feet',
+    ],
+    'Vehicle/Traffic Related': [
+      'Driving Without Seatbelt',
+      'Other Traffic Violation',
+      'Using GSM while Driving',
+      'Over Speeding',
+    ],
+    'Position of People': [
+      'Striking Against Objects',
+      'Swallowing a Hazardous Substance',
+      'Inhaling',
+      'Caught in',
+      'Overexertion Repetitive Motions',
+      'Struck by Objects',
+      'On or Between Objects',
+      'Falling/SlipsTrips',
+      'Contacting Temperature Extreme',
+      'Absorbing',
+      'Awkward Position/Static Postures',
+      'Contacting Electrical Current',
+      'Mobiletest',
+    ],
+  };
 
   void _showPicker({
     required BuildContext context,
@@ -165,82 +218,10 @@ class ObservationCreateState extends State<ObservationCreate> {
           print(extension);
           print(mb);
           postAttachments();
-        } else {
-          /* ScaffoldMessenger.of(context).showSnackBar(// is this context <<<
-              const SnackBar(content: Text('Nothing is selected')));*/
-        }
+        } else {}
       },
     );
   }
-  // late GoogleMapController locationController;
-  // final Mode _mode = Mode.overlay;
-  // static const kGoogleApiKey = 'AIzaSyCOzLA_y7zyM0UwhgaY5Ak_he2Pr7ga7tU';
-  // final homeScaffoldKey = GlobalKey<ScaffoldState>();
-  // Set<Marker> markersList = {};
-  // Widget setupAlertDialoadMap() {
-  //   return StatefulBuilder(
-  //       builder: (context, StateSetter setState) {
-  //         return Container(
-  //           margin: const EdgeInsets.only(top: 10, left: 0, right: 0),
-  //           padding: const EdgeInsets.only(top: 0, left: 10, right: 10),
-  //           decoration: BoxDecoration(
-  //               borderRadius: const BorderRadius.all(Radius.circular(4.0)),
-  //               border: Border.all(
-  //                   color: dynamicTextBorderColor,
-  //                   width: 1
-  //               ),
-  //               color: Colors.white),
-  //           child: Column(
-  //               children: <Widget>[
-  //                  GoogleMap(
-  //                    initialCameraPosition: CameraPosition(target: LatLng(45.521563,-122.677433), zoom: 17),
-  //                    onTap: (LatLng latLng) {
-  //                      setState(() {
-  //                        var lat = latLng.latitude;
-  //                        var lang = latLng.longitude;
-  //                        print(lat.toString() + "," + lang.toString());
-  //                      });
-  //                      },
-  //                    zoomControlsEnabled: false,
-  //                    compassEnabled: false,
-  //                    indoorViewEnabled: true,
-  //                    mapToolbarEnabled: false,
-  //                    myLocationEnabled: true,
-  //                    onCameraIdle: () {
-  //                      print("tapping for udpate");
-  //                       // locationController.updatePosition(_cameraPosition, true);
-  //                    },
-  //                    onCameraMove: ((position){
-  //                      _cameraPosition = position;
-  //                    }),
-  //                    onMapCreated: (GoogleMapController controller) {
-  //                      locationController = controller;
-  //                       // locationController.getCurrentLocation(true, mapController: controller);
-  //                    },
-  //                  ),
-  //                 TextButton(onPressed: _handlePressButton, child: const Text("Search Places"))
-  //               ]
-  //           ),
-  //         );
-  //       });
-  // }
-
-  // Future<void> _handlePressButton() async {
-  //   Prediction? p = await PlacesAutocomplete.show(
-  //       context: context,
-  //       apiKey: kGoogleApiKey,
-  //       onError: onError,
-  //       mode: _mode,
-  //       language: 'en',
-  //       strictbounds: false,
-  //       types: [""],
-  //       decoration: InputDecoration(
-  //           hintText: 'Search',
-  //           focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: BorderSide(color: Colors.white))),
-  //       components: [Component(Component.country,"pk"),Component(Component.country,"usa")]);
-
-  //   // displayPrediction(p!,homeScaffoldKey.currentState);
-  // }
 
   void onError(PlacesAutocompleteResponse response) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -253,30 +234,7 @@ class ObservationCreateState extends State<ObservationCreate> {
         message: '',
       ),
     ));
-
-    // homeScaffoldKey.currentState!.showSnackBar(SnackBar(content: Text(response.errorMessage!)));
   }
-
-  // Future<void> displayPrediction(Prediction p, ScaffoldState currentState) async {
-
-  //   GoogleMapsPlaces places = GoogleMapsPlaces(
-  //       apiKey: kGoogleApiKey,
-  //       apiHeaders: await const GoogleApiHeaders().getHeaders()
-  //   );
-
-  //   PlacesDetailsResponse detail = await places.getDetailsByPlaceId(p.placeId.toString());
-
-  //   final lat = detail.result.geometry?.location.lat;
-  //   final lng = detail.result.geometry?.location.lng;
-
-  //   markersList.clear();
-  //   markersList.add(Marker(markerId: MarkerId("0"),position: LatLng(lat!, lng!),infoWindow: InfoWindow(title: detail.result.name)));
-
-  //   setState(() {});
-
-  //   locationController.animateCamera(CameraUpdate.newLatLngZoom(LatLng(lat, lng), 14.0));
-
-  // }
 
   Map<String, String> get headers =>
       {"Authorization": 'bearer ' + token, "Content-Type": 'application/json'};
@@ -290,9 +248,7 @@ class ObservationCreateState extends State<ObservationCreate> {
     if (response.body.isNotEmpty) {
       getData = json.decode(response.body);
     }
-    // String error = getData["error"];
     employee.clear();
-    // if (error != Error) {
     setState(() {
       var count = getData["items"].length;
       for (int i = 0; i < count; i++) {
@@ -340,14 +296,11 @@ class ObservationCreateState extends State<ObservationCreate> {
       });
     }
 
-    // Parse the JSON data
     final Map<String, dynamic> data = json.decode(response.body);
 
-    // Build the nested dropdown structure
     final List<Map<String, dynamic>> nestedDropdownData =
         buildNestedDropdown(data['items']);
 
-    // Set the initial dropdown items
     setState(() {
       dropdownItems = nestedDropdownData;
     });
@@ -408,7 +361,7 @@ class ObservationCreateState extends State<ObservationCreate> {
     showLoaderDialog(context);
     var items;
     String url =
-        "https://webgateway.demoehswatch.com/api/observations-service/propertysettings/GetListPropertyAsync?MaxResultCount=1000";
+        "https://webgateway.dev-ehswatch.com/api/observations-service/propertysettings/GetListPropertyAsync?Authorization=bearer {{AuthorizationToken}}&Content-Type=application/json&providerName=Observation&maxResultCount=1000";
 
     print(url);
     final Uri getObsPropertyData = Uri.parse(url);
@@ -442,7 +395,6 @@ class ObservationCreateState extends State<ObservationCreate> {
   }
 
   Future<void> getProperty() async {
-    // Variable to store the selected value
     print("sdasdasd");
     for (int i = 0; i < _display.length; i++) {
       for (int j = 0; j < getPropertyDataLength; j++) {
@@ -459,7 +411,7 @@ class ObservationCreateState extends State<ObservationCreate> {
                 controllers.add(controller);
                 String value = ite['name'].toString().split("Observation.")[1];
                 value = "${value[0].toLowerCase()}${value.substring(1)}";
-                print("TEXTBOX  " + value);
+                print("TEXTBOX---------------  " + value);
                 controllersMap[value] = controller;
                 setState(() {
                   if (ite['masterDataObjectCode'] == "")
@@ -480,7 +432,7 @@ class ObservationCreateState extends State<ObservationCreate> {
                 controllers.add(controller);
                 String value = ite['name'].toString().split("Observation.")[1];
                 value = "${value[0].toLowerCase()}${value.substring(1)}";
-                print("TEXTBOX  " + value);
+                print("TEXTBOX************* " + value);
                 controllersMap[value] = controller;
                 setState(() {
                   if (ite['masterDataObjectCode'] == "")
@@ -505,7 +457,7 @@ class ObservationCreateState extends State<ObservationCreate> {
                 controllers.add(controller);
                 String value = ite['name'].toString().split("Observation.")[1];
                 value = "${value[0].toLowerCase()}${value.substring(1)}";
-                print("TEXTBOX  " + value);
+                print("TEXTBOX*&*&*&*&*&*  " + value);
                 controllersMap[value] = controller;
                 _Widget.add(dynamicText(
                     ite['name'].toString().split("Observation.")[1],
@@ -520,7 +472,7 @@ class ObservationCreateState extends State<ObservationCreate> {
                 controllers.add(controller);
                 String value = ite['name'].toString().split("Observation.")[1];
                 value = "${value[0].toLowerCase()}${value.substring(1)}";
-                print("TEXTBOX  " + value);
+                print("TEXTBOX%^&^%#%^  " + value);
                 controllersMap[value] = controller;
                 _Widget.add(dynamicText(
                     ite['name'].toString().split("Observation.")[1],
@@ -534,21 +486,6 @@ class ObservationCreateState extends State<ObservationCreate> {
                 var codeDropDown = ite['masterDataObjectCode'];
                 getMasterDrop(codeDropDown);
                 break;
-                // case "GEOLOCATION":
-                //   TextEditingController controller = TextEditingController();
-                //   controllers.add(controller);
-                //   String value = ite['name'].toString().split("Observation.")[1];
-                //   value = "${value[0].toLowerCase()}${value.substring(1)}";
-                //   print("TEXTBOX  "+value);
-                //   controllersMap[value]= controller;
-                //   setState(() {
-                //     if (ite['masterDataObjectCode'] == "")
-                //       _Widget.add(dynamicText(
-                //           ite['name'].toString().split("Observation.")[1],
-                //           textColor: textColor));
-                //     _Widget.add(googleMapText());
-                //   });
-                break;
               case "RADIOBUTTON":
                 print(ite['masterDataObjectCode']);
                 var codeRadio = ite['masterDataObjectCode'];
@@ -561,32 +498,6 @@ class ObservationCreateState extends State<ObservationCreate> {
     }
     Navigator.pop(context);
   }
-
-  // Widget googleMapText(){
-  //   return Container(
-  //     child: InkWell (onTap: () {
-  //     showDialog(
-  //         context: context,
-  //         builder: (BuildContext context) {
-  //           return AlertDialog(
-  //             title: Text('Map'),
-  //             content: setupAlertDialoadMap(),
-  //           );
-  //         });
-  //       },
-  //       child: Text(latlang!=null?latlang:" ",
-  //         softWrap: false,
-  //         overflow: TextOverflow.ellipsis,
-  //         style: TextStyle(
-  //           fontFamily: 'Inter',
-  //           fontSize: textSizeSMedium,
-  //           color: textColor,
-  //           height: 1.5,
-  //         ),
-  //       ),
-  //     )
-  //   );
-  // }
 
   Future<void> getPropertyHidder(var controlIds) async {
     print(controlIds);
@@ -613,12 +524,6 @@ class ObservationCreateState extends State<ObservationCreate> {
                     ite['name'].toString().split("Observation.")[1],
                     textColor: textColor));
               _Widget.add(dynamicTextbox(50, controller, true));
-            });
-            break;
-          case "MULTISELECT":
-            setState(() {
-              _WidgetObservationDetails.add(
-                  multiSelect(ite['masterDataObjectCode']));
             });
             break;
         }
@@ -652,12 +557,6 @@ class ObservationCreateState extends State<ObservationCreate> {
                     textColor: textColor));
               _WidgetObservationSubDetails.add(
                   dynamicTextbox(50, controller, false));
-            });
-            break;
-          case "MULTISELECT":
-            setState(() {
-              _WidgetObservationSubDetails.add(
-                  subMultiSelect(ite['masterDataObjectCode']));
             });
             break;
         }
@@ -728,16 +627,60 @@ class ObservationCreateState extends State<ObservationCreate> {
     });
   }
 
+  // Future<void> createObservation(final values, final dropDownValues) async {
+  //   String data = values + "," + dropDownValues;
+  //   print(data);
+  //   final msg = jsonEncode({data});
+  //
+  //   Response response1 =
+  //       await post(createObservations, headers: headers, body: msg)
+  //           .timeout(Duration(seconds: timeOut));
+  //   print(response1.body);
+  //   if (response1.statusCode == 200) {}
+  // }
+
   Future<void> createObservation(final values, final dropDownValues) async {
-    String data = values + "," + dropDownValues;
-    print(data);
-    final msg = jsonEncode({data});
+    String wereImmediate = observationController.immidiateActionController.text;
+    String unsafeType = observationController.textToShort.value;
+    String immediateActionsTaken = ''; // Initialize with an empty string
+    String unsafeConditionOptions = '';
+
+    if (isYesClicked) {
+      immediateActionsTaken = '';
+    }
+
+    for (int index = 0; index < selectedUnsafeConditions.length; index++) {
+      unsafeConditionOptions +=
+          '${selectedUnsafeConditions[index]}: ${selectedUnsafeConditionOptions[index].join(', ')}${index < selectedUnsafeConditions.length - 1 ? '; ' : ''}';
+    }
+
+    final data = {
+      'values': values,
+      'dropDownValues': dropDownValues,
+      'wereImmediate': wereImmediate,
+      'unsafeType': unsafeType,
+      'immediateActionsTaken': immediateActionsTaken,
+      'unsafeConditionOptions': unsafeConditionOptions,
+      'organizationUnitId': organizationSelection,
+    };
+
+    final msg = jsonEncode(data);
 
     Response response1 =
         await post(createObservations, headers: headers, body: msg)
             .timeout(Duration(seconds: timeOut));
     print(response1.body);
-    if (response1.statusCode == 200) {}
+    if (response1.statusCode == 200) {
+      var responseData = jsonDecode(response1.body);
+      String recordId = responseData['id'];
+
+      box.put('wereImmediate_$recordId', wereImmediate);
+      box.put('unsafeType_$recordId', unsafeType);
+      box.put('immediateActionsTaken_$recordId', immediateActionsTaken);
+      box.put('unsafeConditionOptions_$recordId', unsafeConditionOptions);
+
+      Get.toNamed(ObservationList.tag);
+    } else {}
   }
 
   @override
@@ -809,103 +752,105 @@ class ObservationCreateState extends State<ObservationCreate> {
                               return observationController.clickType.value ==
                                           2 ||
                                       observationController.clickType.value == 3
-                                  ? Column(
-                                      children: [
-                                        Padding(
-                                          padding: const EdgeInsets.fromLTRB(
-                                              0, 20, 130, 0),
-                                          child: SizedBox(
-                                            height: MediaQuery.of(context)
-                                                    .size
-                                                    .height *
-                                                0.025,
-                                            child: dynamicText(
-                                                "WereImmediateActions...",
-                                                textColor: textColor),
+                                  ? Column(children: [
+                                      Padding(
+                                        padding: const EdgeInsets.fromLTRB(
+                                            0, 20, 130, 0),
+                                        child: SizedBox(
+                                          height: MediaQuery.of(context)
+                                                  .size
+                                                  .height *
+                                              0.025,
+                                          child: dynamicText(
+                                            "Were Immediate Actions taken?",
+                                            textColor: textColor,
                                           ),
                                         ),
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 18, vertical: 8),
-                                          child: Container(
-                                            decoration: BoxDecoration(
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 18, vertical: 8),
+                                        child: DropdownButtonFormField<String>(
+                                          value: positionSelection,
+                                          onChanged: (String? value) {
+                                            setState(() {
+                                              positionSelection = value!;
+                                            });
+                                            if (value == 'Yes') {
+                                              isYesClicked = true;
+                                            } else {
+                                              isYesClicked = false;
+                                            }
+                                          },
+                                          decoration: InputDecoration(
+                                            hintStyle: TextStyle(fontSize: 12),
+                                            hintText: 'Select an option',
+                                            contentPadding:
+                                                EdgeInsets.symmetric(
+                                                    horizontal: 16.0,
+                                                    vertical: 12.0),
+                                            border: OutlineInputBorder(
                                               borderRadius:
                                                   BorderRadius.circular(8.0),
-                                              border: Border.all(
+                                              borderSide: BorderSide(
                                                 color:
                                                     headerColor, // Border color
                                                 width: 1.0, // Border width
                                               ),
                                             ),
-                                            child: TextField(
-                                              controller: observationController
-                                                  .immidiateActionController,
-                                              decoration: InputDecoration(
-                                                hintStyle:
-                                                    TextStyle(fontSize: 12),
-                                                hintText:
-                                                    'WereImmediateActions...', // Placeholder text
-                                                contentPadding:
-                                                    EdgeInsets.symmetric(
-                                                        horizontal: 16.0,
-                                                        vertical:
-                                                            12.0), // Padding for the text input
-                                                border: InputBorder
-                                                    .none, // Remove the default border
-                                                focusedBorder:
-                                                    OutlineInputBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          8.0),
-                                                  borderSide: BorderSide(
-                                                    color:
-                                                        headerColor, // Border color when focused
-                                                    width:
-                                                        1.0, // Border width when focused
-                                                  ),
-                                                ),
-                                                enabledBorder:
-                                                    OutlineInputBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          8.0),
-                                                  borderSide: BorderSide(
-                                                    color:
-                                                        headerColor, // Border color when enabled
-                                                    width:
-                                                        0.0, // Border width when enabled
-                                                  ),
-                                                ),
-                                                suffixIcon:
-                                                    DropdownButton<String>(
-                                                  onChanged: (String? value) {
-                                                    observationController
-                                                        .immidiateActionController
-                                                        .text = value ?? '';
-                                                    // Handle dropdown value changes here
-                                                  },
-                                                  items: <String>['Yes', 'No']
-                                                      .map((String value) {
-                                                    return DropdownMenuItem<
-                                                        String>(
-                                                      value: value,
-                                                      child: Text(value),
-                                                    );
-                                                  }).toList(),
-                                                  icon: Icon(Icons
-                                                      .arrow_drop_down), // Dropdown icon
-                                                  iconSize: 30, // Icon size
-                                                  elevation:
-                                                      16, // Elevation for the dropdown menu
-                                                  underline:
-                                                      Container(), // Remove underline
-                                                ),
+                                            enabledBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(8.0),
+                                              borderSide: BorderSide(
+                                                color: headerColor,
+                                                width: 1.0,
                                               ),
                                             ),
                                           ),
+                                          items: <String>['Yes', 'No']
+                                              .map((String value) {
+                                            return DropdownMenuItem<String>(
+                                              value: value,
+                                              child: Text(value),
+                                            );
+                                          }).toList(),
                                         ),
-                                      ],
-                                    )
+                                      ),
+                                      if (isYesClicked)
+                                        Column(
+                                          children: [
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.fromLTRB(
+                                                      0, 20, 130, 0),
+                                              child: Text(
+                                                'Immediate Actions Taken',
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.normal,
+                                                  color: headerColor,
+                                                ),
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 18,
+                                                      vertical: 8),
+                                              child: TextField(
+                                                decoration: InputDecoration(
+                                                  hintText: 'Enter the text',
+                                                  border: OutlineInputBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            8.0),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        )
+                                    ])
                                   : SizedBox();
                             }),
                             Obx(() {
@@ -930,60 +875,497 @@ class ObservationCreateState extends State<ObservationCreate> {
                                                             .clickType.value ==
                                                         2
                                                     ? "Unsafe Act Type             "
-                                                    : "Types of Unsafe Condition",
+                                                    : "Type of Unsafe Condition",
                                                 textColor: textColor,
                                               ),
                                             ),
                                           ),
                                         ),
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              vertical: 8, horizontal: 20),
-                                          child: Wrap(
-                                            direction: Axis.horizontal,
-                                            children: [
-                                              Row(
-                                                mainAxisAlignment: MainAxisAlignment
-                                                    .start, // Align widgets to the start of the row
-                                                children: [
-                                                  InkWell(
-                                                    onTap: () {
-                                                      _showPopupMenu(
-                                                          context); // Function to show the popup menu
-                                                    },
-                                                    child: Container(
-                                                      width: 320,
-                                                      decoration: BoxDecoration(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(8.0),
-                                                        border: Border.all(
-                                                          color:
-                                                              headerColor, // Border color
-                                                          width:
-                                                              1.0, // Border width
+                                        if (observationController
+                                                .clickType.value ==
+                                            2)
+                                          Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                vertical: 8, horizontal: 20),
+                                            child: ListView.builder(
+                                              shrinkWrap: true,
+                                              itemCount: observationController
+                                                  .unsafeActList.length,
+                                              itemBuilder:
+                                                  (BuildContext context,
+                                                      int index) {
+                                                String option =
+                                                    observationController
+                                                        .unsafeActList[index];
+                                                return CheckboxListTile(
+                                                  title: Text(option),
+                                                  value: selectedUnsafeActs
+                                                      .contains(option),
+                                                  onChanged: (bool? value) {
+                                                    setState(() {
+                                                      if (value!) {
+                                                        selectedUnsafeActs
+                                                            .add(option);
+                                                        selectedUnsafeActOptions
+                                                            .add([]);
+                                                      } else {
+                                                        selectedUnsafeActs
+                                                            .remove(option);
+                                                        selectedUnsafeActOptions
+                                                            .removeLast();
+                                                      }
+                                                    });
+                                                  },
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                        if (selectedUnsafeActs.isNotEmpty)
+                                          ...selectedUnsafeActs
+                                              .asMap()
+                                              .entries
+                                              .map((entry) {
+                                            int index = entry.key;
+                                            return Column(
+                                              children: [
+                                                Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    if (selectedUnsafeActs[
+                                                            index] !=
+                                                        "Others") // Render only if it's not the "Others" option
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .only(left: 20),
+                                                        child: Text(
+                                                          selectedUnsafeActs[
+                                                              index],
+                                                          style: TextStyle(
+                                                            fontSize: 15,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .normal,
+                                                            color: headerColor,
+                                                          ),
                                                         ),
                                                       ),
+                                                    if (selectedUnsafeActs[
+                                                            index] !=
+                                                        "Others")
+                                                      SizedBox(height: 8),
+                                                    if (selectedUnsafeActs[
+                                                            index] !=
+                                                        "Others") // Render CheckboxListTile only if it's not the "Others" option
+                                                      Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Container(
+                                                            decoration:
+                                                                BoxDecoration(
+                                                              border: Border.all(
+                                                                  color:
+                                                                      headerColor),
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          5),
+                                                            ),
+                                                            child: Column(
+                                                              crossAxisAlignment:
+                                                                  CrossAxisAlignment
+                                                                      .start,
+                                                              children: [
+                                                                Padding(
+                                                                  padding:
+                                                                      const EdgeInsets
+                                                                          .all(
+                                                                          8.0),
+                                                                ),
+                                                                Container(
+                                                                  padding: EdgeInsets
+                                                                      .symmetric(
+                                                                          horizontal:
+                                                                              8.0),
+                                                                  child: Wrap(
+                                                                    spacing:
+                                                                        8.0,
+                                                                    children: selectedUnsafeActOptions[
+                                                                            index]
+                                                                        .map((String
+                                                                            option) {
+                                                                      return Chip(
+                                                                        label: Text(
+                                                                            option),
+                                                                        onDeleted:
+                                                                            () {
+                                                                          setState(
+                                                                              () {
+                                                                            selectedUnsafeActOptions[index].remove(option);
+                                                                          });
+                                                                        },
+                                                                      );
+                                                                    }).toList(),
+                                                                  ),
+                                                                ),
+                                                                Column(
+                                                                  children: optionToListMap[selectedUnsafeActs[
+                                                                              index]]
+                                                                          ?.map((String
+                                                                              value) {
+                                                                        return CheckboxListTile(
+                                                                          title:
+                                                                              Text(value),
+                                                                          value:
+                                                                              selectedUnsafeActOptions[index].contains(value) ?? false,
+                                                                          onChanged:
+                                                                              (bool? checked) {
+                                                                            setState(() {
+                                                                              if (checked != null) {
+                                                                                if (checked) {
+                                                                                  selectedUnsafeActOptions[index].add(value);
+                                                                                } else {
+                                                                                  selectedUnsafeActOptions[index].remove(value);
+                                                                                }
+                                                                              }
+                                                                            });
+                                                                          },
+                                                                        );
+                                                                      }).toList() ??
+                                                                      [],
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    SizedBox(
+                                                      height: 15,
+                                                    ),
+                                                    if (selectedUnsafeActs[
+                                                            index] ==
+                                                        "Others")
+                                                      Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          // Header for "Other Unsafe Act Options"
+                                                          Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .all(8.0),
+                                                            child: Text(
+                                                              'Other Unsafe Act Options*',
+                                                              style: TextStyle(
+                                                                fontSize: 16,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .normal,
+                                                                color:
+                                                                    headerColor,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          Column(
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
+                                                            children: [
+                                                              TextField(
+                                                                onChanged:
+                                                                    (newValue) {
+                                                                  // Handle the onChanged event
+                                                                },
+                                                                decoration:
+                                                                    InputDecoration(
+                                                                  hintText:
+                                                                      'Enter other unsafe act options...',
+                                                                  border:
+                                                                      OutlineInputBorder(
+                                                                    borderRadius:
+                                                                        BorderRadius.circular(
+                                                                            5.0),
+                                                                    borderSide:
+                                                                        BorderSide(
+                                                                            color:
+                                                                                headerColor),
+                                                                  ),
+                                                                  focusedBorder:
+                                                                      OutlineInputBorder(
+                                                                    borderRadius:
+                                                                        BorderRadius.circular(
+                                                                            5.0),
+                                                                    borderSide:
+                                                                        BorderSide(
+                                                                            color:
+                                                                                headerColor),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ],
+                                                      ),
+                                                  ],
+                                                ),
+                                              ],
+                                            );
+                                          }).toList(),
+                                        if (observationController
+                                                .clickType.value ==
+                                            3)
+                                          Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                vertical: 8, horizontal: 20),
+                                            child: ListView.builder(
+                                              shrinkWrap: true,
+                                              itemCount: observationController
+                                                  .unsafeConditionsList.length,
+                                              itemBuilder:
+                                                  (BuildContext context,
+                                                      int index) {
+                                                return CheckboxListTile(
+                                                  title: Text(observationController
+                                                          .unsafeConditionsList[
+                                                      index]),
+                                                  value: selectedUnsafeConditions
+                                                      .contains(
+                                                          observationController
+                                                                  .unsafeConditionsList[
+                                                              index]),
+                                                  onChanged: (bool? value) {
+                                                    setState(() {
+                                                      if (value!) {
+                                                        selectedUnsafeConditions.add(
+                                                            observationController
+                                                                    .unsafeConditionsList[
+                                                                index]);
+                                                        selectedUnsafeConditionOptions
+                                                            .add([]);
+                                                      } else {
+                                                        selectedUnsafeConditions.remove(
+                                                            observationController
+                                                                    .unsafeConditionsList[
+                                                                index]);
+                                                        selectedUnsafeConditionOptions
+                                                            .removeLast();
+                                                      }
+                                                    });
+                                                  },
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                        if (selectedUnsafeConditions.isNotEmpty)
+                                          ...selectedUnsafeConditions
+                                              .asMap()
+                                              .entries
+                                              .map((entry) {
+                                            int index = entry.key;
+                                            return Column(
+                                              children: [
+                                                Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Padding(
                                                       padding:
-                                                          EdgeInsets.symmetric(
-                                                              horizontal: 16.0,
-                                                              vertical: 12.0),
+                                                          const EdgeInsets.only(
+                                                              left: 20),
                                                       child: Text(
-                                                        widget._selectedValue ??
-                                                            'Select an option', // Text to display
+                                                        selectedUnsafeConditions[
+                                                            index],
                                                         style: TextStyle(
-                                                          fontSize: 12,
-                                                          color: Colors
-                                                              .black, // Text color
+                                                          fontSize: 15,
+                                                          fontWeight:
+                                                              FontWeight.normal,
+                                                          color: headerColor,
                                                         ),
                                                       ),
                                                     ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ],
-                                          ),
-                                        ),
+                                                    SizedBox(height: 8),
+                                                    Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        // Existing container
+                                                        Container(
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            border: Border.all(
+                                                                color:
+                                                                    headerColor),
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        5),
+                                                          ),
+                                                          child: Column(
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
+                                                            children: [
+                                                              Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                        .all(
+                                                                        8.0),
+                                                              ),
+                                                              Container(
+                                                                padding: EdgeInsets
+                                                                    .symmetric(
+                                                                        horizontal:
+                                                                            8.0),
+                                                                child: Wrap(
+                                                                  spacing: 8.0,
+                                                                  children: selectedUnsafeConditionOptions[
+                                                                          index]
+                                                                      .map((String
+                                                                          option) {
+                                                                    return Chip(
+                                                                      label: Text(
+                                                                          option),
+                                                                      onDeleted:
+                                                                          () {
+                                                                        setState(
+                                                                            () {
+                                                                          selectedUnsafeConditionOptions[index]
+                                                                              .remove(option);
+                                                                        });
+                                                                      },
+                                                                    );
+                                                                  }).toList(),
+                                                                ),
+                                                              ),
+                                                              Column(
+                                                                children: selectedUnsafeConditions[
+                                                                            index] ==
+                                                                        'Vehicle Related Unsafe Condition'
+                                                                    ? observationController
+                                                                        .vehicleRelatedUnsafeConditionOptionsList
+                                                                        .map((String
+                                                                            value) {
+                                                                        return CheckboxListTile(
+                                                                          title:
+                                                                              Text(value),
+                                                                          value:
+                                                                              selectedUnsafeConditionOptions[index].contains(value),
+                                                                          onChanged:
+                                                                              (bool? checked) {
+                                                                            setState(() {
+                                                                              if (checked != null) {
+                                                                                if (checked) {
+                                                                                  selectedUnsafeConditionOptions[index].add(value);
+                                                                                } else {
+                                                                                  selectedUnsafeConditionOptions[index].remove(value);
+                                                                                }
+                                                                              }
+                                                                            });
+                                                                          },
+                                                                        );
+                                                                      }).toList()
+                                                                    : observationController
+                                                                        .unsafeConditionOptionsList
+                                                                        .map((String
+                                                                            value) {
+                                                                        return CheckboxListTile(
+                                                                          title:
+                                                                              Text(value),
+                                                                          value:
+                                                                              selectedUnsafeConditionOptions[index].contains(value),
+                                                                          onChanged:
+                                                                              (bool? checked) {
+                                                                            setState(() {
+                                                                              if (checked != null) {
+                                                                                if (checked) {
+                                                                                  selectedUnsafeConditionOptions[index].add(value);
+                                                                                } else {
+                                                                                  selectedUnsafeConditionOptions[index].remove(value);
+                                                                                }
+                                                                              }
+                                                                            });
+                                                                          },
+                                                                        );
+                                                                      }).toList(),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                        SizedBox(
+                                                          height: 15,
+                                                        ),
+                                                        if (selectedUnsafeConditionOptions[
+                                                                index]
+                                                            .contains("Others"))
+                                                          Column(
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
+                                                            children: [
+                                                              // Header for "Other Unsafe Conditions"
+                                                              Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                        .all(
+                                                                        8.0),
+                                                                child: Text(
+                                                                  'Other Unsafe Conditions*',
+                                                                  style:
+                                                                      TextStyle(
+                                                                    fontSize:
+                                                                        16,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .normal,
+                                                                    color:
+                                                                        headerColor,
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                              Column(
+                                                                crossAxisAlignment:
+                                                                    CrossAxisAlignment
+                                                                        .start,
+                                                                children: [
+                                                                  TextField(
+                                                                    onChanged:
+                                                                        (newValue) {},
+                                                                    decoration:
+                                                                        InputDecoration(
+                                                                      hintText:
+                                                                          'Enter other unsafe conditions...',
+                                                                      border:
+                                                                          OutlineInputBorder(
+                                                                        borderRadius:
+                                                                            BorderRadius.circular(5.0),
+                                                                        borderSide:
+                                                                            BorderSide(color: headerColor),
+                                                                      ),
+                                                                      focusedBorder:
+                                                                          OutlineInputBorder(
+                                                                        borderRadius:
+                                                                            BorderRadius.circular(5.0),
+                                                                        borderSide:
+                                                                            BorderSide(color: headerColor),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ],
+                                                          ),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
+                                            );
+                                          }).toList(),
                                       ],
                                     )
                                   : SizedBox();
@@ -1163,50 +1545,59 @@ class ObservationCreateState extends State<ObservationCreate> {
                       ),
                     ),
                 ])),
-        Container(
-          margin: EdgeInsets.only(left: 16, right: 16, bottom: 20),
-          padding: EdgeInsets.only(left: 20, right: 20),
-          width: size.width,
-          height: 50,
-          decoration: BoxDecoration(
+        GestureDetector(
+          onTap: () {
+            final values = controllersMap.entries
+                .toList()
+                .map((e) => ' \"${e.key}\"  : \"${e.value.text}\" ')
+                .join(',');
+            print(values);
+            final dropdown = dropDownMap.entries
+                .toList()
+                .map((e) => ' \"${e.key}\" : \"${e.value}\" ')
+                .join(',');
+            print(dropdown +
+                "wereImmediate : ${observationController.immidiateActionController.text}" +
+                "unsafeType : ${observationController.textToShort.value}");
+
+            box.put('OrgUnitId', allCountryNames);
+            employee.map((e) {
+              offlineEmployeeList.add(e.name);
+            }).toList();
+            box.put('employeeList', offlineEmployeeList);
+            logger.i(box.get('OrgUnitId'));
+            logger.i(box.get('employeeList'));
+
+            createObservation(values, dropdown);
+            Get.back();
+          },
+          child: Container(
+            margin: EdgeInsets.only(left: 16, right: 16, bottom: 20),
+            padding: EdgeInsets.only(left: 20, right: 20),
+            width: size.width,
+            height: 50,
+            decoration: BoxDecoration(
               color: Colors.white,
               border: Border.all(color: headerColor, width: 2),
-              borderRadius: BorderRadius.circular(15.0)),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              TextButton(
-                onPressed: () {
-                  final values = controllersMap.entries
-                      .toList()
-                      .map((e) => ' \"${e.key}\"  : \"${e.value.text}\" ')
-                      .join(',');
-                  print(values);
-                  final dropdown = dropDownMap.entries
-                      .toList()
-                      .map((e) => ' \"${e.key}\" : \"${e.value}\" ')
-                      .join(',');
-                  print(dropdown +
-                      "wereImmediate : ${observationController.immidiateActionController.text}" +
-                      "unsafeType : ${observationController.textToShort.value}");
-
-                  box.put('OrgUnitId', allCountryNames);
-                  logger.i(box.get('OrgUnitId'));
-
-                  createObservation(values, dropdown);
-                  Get.back();
-                },
-                child: Center(
-                  child: Text("Submit",
-                      style: primaryTextStyle(
-                          size: 16,
-                          color: headerColor,
-                          fontFamily: 'RocgroTesk')),
+              borderRadius: BorderRadius.circular(15.0),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Center(
+                  child: Text(
+                    "Submit",
+                    style: primaryTextStyle(
+                      size: 16,
+                      color: headerColor,
+                      fontFamily: 'RocgroTesk',
+                    ),
+                  ),
                 ),
-              )
-            ],
+              ],
+            ),
           ),
         ),
       ]),
@@ -1268,8 +1659,6 @@ class ObservationCreateState extends State<ObservationCreate> {
   }
 
   Widget radioitem(BuildContext context, var code) {
-    // ObservationController observationController =
-    //     Get.put(ObservationController());
     var radiolist = subCommon
         .where((element) => element.masterDataObjectId == code)
         .toList();
@@ -1358,8 +1747,6 @@ class ObservationCreateState extends State<ObservationCreate> {
     return result;
   }
 
-  // Define a list to store all country names
-
   void _onDropdownChanged(dynamic selectedValue, String code) {
     if (selectedValue is Map<String, dynamic>) {
       Map<String, dynamic> selectedItem = selectedValue;
@@ -1378,7 +1765,7 @@ class ObservationCreateState extends State<ObservationCreate> {
 
     for (final item in items) {
       final String displayName = item['displayName'];
-      allCountryNames.add(displayName); // Add country name to the list
+      allCountryNames.add(displayName);
       final String displayText =
           level == 0 ? displayName : (' ' * (level * 4)) + displayName;
       menuItems.add(
@@ -1422,31 +1809,6 @@ class ObservationCreateState extends State<ObservationCreate> {
                     });
                   },
                 ),
-                new DropdownButton(
-                  isExpanded: true,
-                  iconEnabledColor: headerColor,
-                  iconDisabledColor: headerColor,
-                  iconSize: 40,
-                  dropdownColor: Colors.white,
-                  items: organizations.map((e) {
-                    return new DropdownMenuItem(
-                      child: new Text(
-                        e.name.toUpperCase(),
-                        style:
-                            TextStyle(color: headerColor, fontFamily: 'Inter'),
-                      ),
-                      value: e.id,
-                    );
-                  }).toList(),
-                  onChanged: (newvalue) {
-                    setState(() {
-                      dropDownMap[code] = newvalue;
-                      positionSelection = newvalue;
-                      print(positionSelection);
-                    });
-                  },
-                  value: positionSelection,
-                )
               ],
             ));
       },
@@ -1576,7 +1938,7 @@ class ObservationCreateState extends State<ObservationCreate> {
 
   void _showPopupMenu(BuildContext context) {
     final RenderBox overlay =
-        Overlay.of(context)!.context.findRenderObject() as RenderBox;
+        Overlay.of(context).context.findRenderObject() as RenderBox;
     final Offset offset = Offset(0.0, overlay.size.height);
 
     showMenu(
@@ -1598,7 +1960,6 @@ class ObservationCreateState extends State<ObservationCreate> {
             }).toList(),
     ).then((value) {
       if (value != null) {
-        // Update the selected value
         setState(() {
           widget._selectedValue = value;
           observationController.textToShort.value = value;
@@ -1607,7 +1968,13 @@ class ObservationCreateState extends State<ObservationCreate> {
     });
   }
 
+  String getCurrentTimeFormatted() {
+    final now = DateTime.now();
+    return DateFormat('HH:mm:ss').format(now);
+  }
+
   Widget timePicker(TextEditingController controller, var code) {
+    final controller = TextEditingController(text: getCurrentTimeFormatted());
     return StatefulBuilder(builder: (context, StateSetter setState) {
       return Container(
           height: 50,
@@ -1638,121 +2005,21 @@ class ObservationCreateState extends State<ObservationCreate> {
                   );
 
                   if (pickedTime != null) {
-                    print(pickedTime.format(context));
-                    DateTime parsedTime = DateFormat.jm()
-                        .parse(pickedTime.format(context).toString());
-                    print(parsedTime);
-                    String formattedTime =
-                        DateFormat('HH:mm:ss').format(parsedTime);
-                    print(formattedTime);
                     setState(() {
-                      controller.text = formattedTime;
+                      controller.text = pickedTime.format(context);
                     });
                   } else {
                     print("Time is not selected");
                   }
                 },
                 onChanged: (text) {
-                  setState(() {});
+                  setState(() {
+                    timeOfAudits = text;
+                  });
                 },
               ))
             ],
           ));
-    });
-  }
-
-  Widget multiSelect(var code) {
-    var radiolist = subCommon
-        .where((element) => element.masterDataObjectId == code)
-        .toList();
-    _WidgetObservationDetails.add(
-        dynamicText(radiolist[0].masterDataObjectValue, textColor: textColor));
-    return StatefulBuilder(builder: (context, StateSetter setState) {
-      return Container(
-        height: 300,
-        decoration: boxDecoration(
-            showShadow: false, bgColor: ehs_white, radius: 8, color: border),
-        child: MultiSelectBottomSheetField(
-          items:
-              radiolist.map((e) => MultiSelectItem(e.value, e.value)).toList(),
-          listType: MultiSelectListType.CHIP,
-          searchable: true,
-          decoration: boxDecoration(
-              showShadow: false, bgColor: ehs_white, radius: 8, color: border),
-          onConfirm: (values) {
-            setState(() {
-              _unSafeActSelected = values;
-              print(_unSafeActSelected.length);
-              _WidgetObservationSubDetails.clear();
-              _WidgetObservationSubDetails.length = 0;
-              if (_unSafeActSelected.length != 0) {
-                for (int i = 0; i < _unSafeActSelected.length; i++) {
-                  var radiolist1 = subCommon
-                      .where(
-                          (element) => element.value == _unSafeActSelected[i])
-                      .toList();
-                  getPropertySubHidden(radiolist1[0].controlIds);
-                }
-                observationSubDetails = true;
-              } else {
-                observationSubDetails = false;
-              }
-            });
-          },
-          chipDisplay: MultiSelectChipDisplay(
-            chipColor: Colors.black,
-            textStyle: TextStyle(color: Colors.white),
-            items:
-                _unSafeActSelected.map((e) => MultiSelectItem(e, e)).toList(),
-            onTap: (value) {
-              setState(() {
-                _unSafeActSelected.remove(value);
-              });
-            },
-          ),
-        ),
-      );
-    });
-  }
-
-  Widget subMultiSelect(var code) {
-    var radiolist = subCommon
-        .where((element) => element.masterDataObjectId == code)
-        .toList();
-    _WidgetObservationSubDetails.add(
-        dynamicText(radiolist[0].masterDataObjectValue, textColor: textColor));
-    return StatefulBuilder(builder: (context, StateSetter setState) {
-      return Container(
-        height: 300,
-        decoration: boxDecoration(
-            showShadow: false, bgColor: ehs_white, radius: 8, color: border),
-        child: MultiSelectBottomSheetField(
-          items:
-              radiolist.map((e) => MultiSelectItem(e.value, e.value)).toList(),
-          listType: MultiSelectListType.CHIP,
-          searchable: true,
-          decoration: boxDecoration(
-              showShadow: false, bgColor: ehs_white, radius: 8, color: border),
-          onConfirm: (values) {
-            setState(() {
-              _unSafeActSubSelected = values;
-              print(_unSafeActSubSelected.length);
-            });
-          },
-          chipDisplay: MultiSelectChipDisplay(
-            chipColor: Colors.black,
-            textStyle: TextStyle(color: Colors.white),
-            items: _unSafeActSubSelected
-                .map((e) => MultiSelectItem(e, e))
-                .toList(),
-            onTap: (value) {
-              setState(() {
-                _unSafeActSelected.remove(value);
-              });
-            },
-          ),
-        ),
-      );
     });
   }
 }

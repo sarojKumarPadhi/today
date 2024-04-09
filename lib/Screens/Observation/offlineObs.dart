@@ -3,9 +3,6 @@ import 'package:ehs_new/controller/observationController.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/get_core.dart';
-import 'package:get/get_instance/get_instance.dart';
-import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:logger/logger.dart';
 import 'package:nb_utils/nb_utils.dart';
@@ -21,6 +18,7 @@ class _OffineObsState extends State<OffineObs> {
   var box = Hive.box('myBox');
   String? _selectedCountry;
   String? _seletedRisk;
+  String? _selectedEmployee;
   String? _selectedOption;
   String? _selectedValue;
   ObservationController observationController =
@@ -246,13 +244,33 @@ class _OffineObsState extends State<OffineObs> {
                   child: dynamicText("Reported By",
                       textColor: const Color(0xFF145d87))),
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: TextBox(
-                textEditingController:
-                    observationController.reportedByController,
+            // reportedBy(context),
+            GestureDetector(
+              onTap: () {
+                reportedByDialog(context); // suraj
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Container(
+                  padding: EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey),
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        _seletedRisk ?? 'Select an item',
+                        style: TextStyle(fontSize: 16),
+                      ),
+                      Icon(Icons.arrow_drop_down),
+                    ],
+                  ),
+                ),
               ),
             ),
+
             SizedBox(
               height: 10,
             ),
@@ -429,8 +447,7 @@ class _OffineObsState extends State<OffineObs> {
                       "comments": observationController.commentsController.text,
                       "ReportedDate":
                           observationController.reportedDateController.text,
-                      "ReportedBy":
-                          observationController.reportedByController.text,
+                      "ReportedBy": _selectedEmployee,
                     };
                     box.put("$length", offileMap);
                     logger.d(box.get("$length"));
@@ -445,6 +462,38 @@ class _OffineObsState extends State<OffineObs> {
         ),
       ),
     );
+  }
+
+  void reportedByDialog(BuildContext context) {
+    if (box.get('employeeList') != null) {
+      List<String> employeeList = box.get('employeeList');
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Select an employee'),
+            content: DropdownButton<String>(
+              value: _selectedEmployee,
+              onChanged: (String? newValue) {
+                setState(() {
+                  _selectedEmployee = newValue;
+                });
+                Navigator.pop(context);
+              },
+              items: employeeList.map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
+            ),
+          );
+        },
+      );
+    } else {
+      Fluttertoast.showToast(
+          msg: "Plz make a observation record in online mode once in lifetime");
+    }
   }
 
   void _preDialog(BuildContext context) {
@@ -542,7 +591,7 @@ class _OffineObsState extends State<OffineObs> {
 
   void _showPopupMenu(BuildContext context) {
     final RenderBox overlay =
-        Overlay.of(context)!.context.findRenderObject() as RenderBox;
+        Overlay.of(context).context.findRenderObject() as RenderBox;
     final Offset offset = Offset(0.0, overlay.size.height);
 
     showMenu(
